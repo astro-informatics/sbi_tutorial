@@ -1,3 +1,4 @@
+#%%
 import healpy as hp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -98,8 +99,8 @@ Survey visibility mask
 vis = glass.vmap_galactic_ecliptic(nside)
 
 # checking the mask:
-hp.mollview(vis, title="Stage IV Space Survey-like Mask", unit="Visibility")
-plt.show()
+# hp.mollview(vis, title="Stage IV Space Survey-like Mask", unit="Visibility")
+# plt.show()
 
 '''
 Simulation
@@ -169,6 +170,7 @@ for i, delta_i in enumerate(matter):
         catalogue = np.append(catalogue, rows)
 
 print(f"Total number of galaxies sampled: {len(catalogue):,}")
+print(catalogue)
 
 #%%
 '''
