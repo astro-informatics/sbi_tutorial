@@ -1,3 +1,4 @@
+#%%
 import healpy as hp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +10,7 @@ from tqdm import tqdm
 
 
 
-def lensing_cls_sim(h, Oc, Ob, angular_modes=256, shell_spacing=200.0, random_seed=42): 
+def lensing_cls_sim(cosmo_params, angular_modes=256, shell_spacing=200.0, random_seed=42): 
     '''
     Configs and Cosmological Params
     '''
@@ -18,6 +19,12 @@ def lensing_cls_sim(h, Oc, Ob, angular_modes=256, shell_spacing=200.0, random_se
 
     # basic parameters of the simulation
     nside = lmax = angular_modes  # HEALPix resolution and max angular mode number
+
+    # unpack cosmological parameters
+    assert isinstance(cosmo_params, dict), "cosmo_params must be a dictionary"
+    h = cosmo_params['h']
+    Oc = cosmo_params['Oc']
+    Ob = cosmo_params['Ob']
 
     # set up CAMB parameters for matter angular power spectrum
     pars = camb.set_params(
@@ -122,11 +129,14 @@ def lensing_cls_sim(h, Oc, Ob, angular_modes=256, shell_spacing=200.0, random_se
     return ((h, Oc, Ob), sim_cls[0])
 
 #%%
-# test = lensing_cls_sim(0.7, 0.3, 0.04)
-# print(test[0])
-# print(type(test[1]))
-# print(test[1])
-# print(test[1].shape)
+c_params = {'h':0.7, 'Oc':0.3, 'Ob':0.04}
+test = lensing_cls_sim(c_params)
+print(test[0])
+print(type(test[1]))
+print(test[1])
+print(test[1].shape)
+
+
 
 
 
