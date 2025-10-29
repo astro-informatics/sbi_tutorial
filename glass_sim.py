@@ -16,11 +16,6 @@ def lensing_cls_sim(h, Oc, Ob, angular_modes=256, shell_spacing=200.0, random_se
     # creating a numpy random number generator for sampling
     rng = np.random.default_rng(seed=random_seed)
 
-    # cosmology for the simulation
-    h = 0.7
-    Oc = 0.25
-    Ob = 0.05
-
     # basic parameters of the simulation
     nside = lmax = angular_modes  # HEALPix resolution and max angular mode number
 
