@@ -129,12 +129,12 @@ def lensing_cls_sim(cosmo_params, angular_modes=256, shell_spacing=200.0, random
     return ((h, Oc, Ob), sim_cls[0])
 
 #%%
-c_params = {'h':0.7, 'Oc':0.3, 'Ob':0.04}
-test = lensing_cls_sim(c_params)
-print(test[0])
-print(type(test[1]))
-print(test[1])
-print(test[1].shape)
+# c_params = {'h':0.7, 'Oc':0.3, 'Ob':0.04}
+# test = lensing_cls_sim(c_params)
+# print(test[0])
+# print(type(test[1]))
+# print(test[1])
+# print(test[1].shape)
 
 
 
