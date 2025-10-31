@@ -78,7 +78,7 @@ def lensing_cls_sim(cosmo_params, angular_modes=256, shell_spacing=200.0, random
     Galaxies sector
     '''
     #localised redshift distribution
-    # the actual density per arcmin2 does not matter here, it is never used
+    # the actual density per arcmin2 does not matter here, it is never useds
     z = np.linspace(0.0, 1.0, 101)
     dndz = np.exp(-((z - 0.5) ** 2) / (0.1) ** 2)
 
@@ -126,15 +126,15 @@ def lensing_cls_sim(cosmo_params, angular_modes=256, shell_spacing=200.0, random
         use_pixel_weights=True,
     )
 
-    return ((h, Oc, Ob), sim_cls[0])
+    return {'params': (h, Oc, Ob), 'cls': sim_cls[0]}
 
 #%%
-# c_params = {'h':0.7, 'Oc':0.3, 'Ob':0.04}
-# test = lensing_cls_sim(c_params)
-# print(test[0])
-# print(type(test[1]))
-# print(test[1])
-# print(test[1].shape)
+c_params = {'h':0.7, 'Oc':0.3, 'Ob':0.04}
+test = lensing_cls_sim(c_params)
+print(test['params'])
+print(type(test['cls']))
+print(test['cls'])
+print(test['cls'].shape)
 
 
 
@@ -163,3 +163,6 @@ def lensing_cls_sim(cosmo_params, angular_modes=256, shell_spacing=200.0, random
 
 
 
+
+
+# %%
