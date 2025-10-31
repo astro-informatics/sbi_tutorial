@@ -1,5 +1,5 @@
 [project]
-name = "astrodat-2025"
+name = "sbi_tutorial"
 version = "0.1.0"
 description = "Tutorial notebook to run a toy SBI case with NLE with some sequential simulation acquisition and data compression with CCA followed by evidence calculation with SDDR and the learned harmonic mean"
 readme = "README.md"
@@ -12,5 +12,6 @@ dependencies = [
     "glass>=2025.2",
     "glass-ext-camb>=2023.6",
     "nautilus-sampler>=1.0.5",
+    "numpy>=2.3.4",
     "sbi>=0.25.0",
 ]
