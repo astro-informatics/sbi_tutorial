@@ -95,7 +95,7 @@ def lensing_cls_sim(cosmo_params, angular_modes=256, shell_spacing=200.0, random
     gamm2_bar = np.zeros(12 * nside**2)
 
     # main loop to simulate the matter fields iterative
-    for i, delta_i in tqdm(enumerate(matter)):
+    for i, delta_i in enumerate(matter):
         # add lensing plane from the window function of this shell
         convergence.add_window(delta_i, shells[i])
 
