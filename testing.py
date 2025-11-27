@@ -58,7 +58,7 @@ def cca(param_samples, cls_samples, parameters, data):
     plt.gca().xaxis.get_major_locator().set_params(integer=True)
     plt.ylabel('Correlation')
 
-    plt.show()
+    # plt.show()
     
     return {'params': parameters, 'compressed_cls': data@canon_projs}
 
@@ -66,19 +66,21 @@ def cca(param_samples, cls_samples, parameters, data):
 h_range = (0.6, 0.8)
 Oc_range = (0.2, 0.4)
 Ob_range = (0.03, 0.05)
-lower_bound = torch.as_tensor([0.6, 0.2, 0.03])
-upper_bound = torch.as_tensor([0.8, 0.4, 0.05])
-prior = BoxUniform(low=lower_bound, high=upper_bound)
+lower_bound = torch.as_tensor([0.6, 0.2, 0.03], dtype=torch.float32)
+upper_bound = torch.as_tensor([0.8, 0.4, 0.05], dtype=torch.float32)
+prior = BoxUniform(low=lower_bound, high=upper_bound, device='mps')
 
 with open('coverage_data.pkl', 'rb') as f:  
     load = pickle.load(f)
-    prior_samples = torch.tensor(load['params'], dtype=torch.float32, device='mps')
-    prior_predictives = torch.tensor(load['cls'], dtype=torch.float32, device='mps')
+    prior_samples = load['params']
+    prior_predictives = load['cls']
+print(prior_samples, prior_predictives)
 
 with open('NLE_NSF_uni1000.pkl', 'rb') as f:
     load = pickle.load(f)
     NLE_uni1000 = load
     posterior = NLE_uni1000.build_posterior(prior=prior) 
+
 
 #We need to compress the prior_predictives using the same compression scheme as before
 with open('sbi_demo_data.pkl', 'rb') as f:
@@ -86,18 +88,24 @@ with open('sbi_demo_data.pkl', 'rb') as f:
     param_samples = load['params']
     cls_samples = load['cls']
 
-cca_result = cca(param_samples, cls_samples, prior_samples.cpu().numpy(), prior_predictives.cpu().numpy())
+cca_result = cca(param_samples, cls_samples, prior_samples, prior_predictives)
 print('compressed dataset has shape of',cca_result['compressed_cls'].shape)
+print('Posterior is', posterior, type(posterior), -posterior.log_prob(torch.tensor(prior_samples[0], dtype=torch.float32, device='cpu'),
+                                                            torch.tensor(cca_result['compressed_cls'][0], dtype=torch.float32, device='cpu')))
 
-# run SBC: for each inference we draw 1000 posterior samples.
-num_posterior_samples = 200
+#%%
+# run SBC: for each prior sample we draw 30 posterior samples.
+num_posterior_samples = 30
+posterior.num_chains = 1  # MCMC chains for posterior sampling
 ranks, dap_samples = run_sbc(
-    prior_samples,
-    torch.tensor(cca_result['compressed_cls'], device='mps', dtype=torch.float32),
+    torch.tensor(prior_samples, dtype=torch.float32, device='mps')[:30],
+    torch.tensor(cca_result['compressed_cls'], dtype=torch.float32, device='mps')[:30],
     posterior,
-    reduce_fns=lambda theta, x: -posterior.log_prob(theta, x),
+    reduce_fns=lambda prior_samples, x: -posterior.log_prob(torch.tensor(prior_samples, dtype=torch.float32, device='mps'),
+                                                            torch.tensor(cca_result['compressed_cls'], dtype=torch.float32, device='mps')),
     num_posterior_samples=num_posterior_samples,
-    use_batched_sampling=False,  # `True` can give speed-ups, but can cause memory issues.
+    use_batched_sampling=True,  # `True` can give speed-ups, but can cause memory issues.
+    num_workers = 8,  # Number of parallel workers to use when `use_batched_sampling=True`
 )
 fig, ax = sbc_rank_plot(
     ranks,
@@ -106,3 +114,22 @@ fig, ax = sbc_rank_plot(
     num_bins=20,
     figsize=(5, 3),
 )
+# %%
+# from sbi.analysis.plot import plot_tarp
+# from sbi.diagnostics.tarp import run_tarp, check_tarp
+
+# posterior.num_chains=10  # MCMC chains for posterior sampling
+
+# ecp, alpha = run_tarp(
+#     torch.tensor(prior_samples, dtype=torch.float32, device='mps'),
+#     torch.tensor(cca_result['compressed_cls'], dtype=torch.float32, device='mps'),
+#     posterior,
+#     references=None,  # will be calculated automatically.
+#     num_posterior_samples=200,
+# )
+
+# atc, ks_pval = check_tarp(ecp, alpha)
+# print(atc, "Should be close to 0")
+# print(ks_pval, "Should be larger than 0.05")
+
+# plot_tarp(ecp, alpha)
